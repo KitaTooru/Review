@@ -109,6 +109,7 @@ pname   VARCHAR(20));
 create table info(
 id          NUMERIC(10) primary key,
 password    VARCHAR(10) check(regexp_like(password,'^00[0-9]{2}[_][a-z,A-Z]{3}$')) and lenth(password)=8);
+--regexp_like:确认字符串是否匹配正则表达式
 ```
 
 
@@ -117,7 +118,7 @@ password    VARCHAR(10) check(regexp_like(password,'^00[0-9]{2}[_][a-z,A-Z]{3}$'
 ```sql
 --将学生的信息加入到学生表中
 insert into student
-values(200508,'yj',19,'男','人工智能','江苏省')
+values(200508,'yj',19,'男','人工智能','江苏省');
 ```
 
 - 删改数据

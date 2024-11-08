@@ -113,6 +113,60 @@ password    VARCHAR(10) check(regexp_like(password,'^00[0-9]{2}[_][a-z,A-Z]{3}$'
 ```
 
 
+### 数据查询
+- 单表查询 
+```sql
+--查询员工人数大于5的部门中，薪水平均值大于6000的部门，按平均薪水降序排列
+SELECT DEPARTMENT_ID, COUNT(*) AS EMPLOYEE_COUNT, AVG(SALARY) AS AVG_SALARY
+FROM EMPLOYEES
+WHERE SALARY > 5000  --只考虑薪水大于5000的员工
+GROUP BY DEPARTMENT_ID  --按部门分组
+HAVING AVG(SALARY) > 6000  --过滤平均薪水大于6000的部门
+ORDER BY AVG_SALARY DESC;  --按平均薪水降序排列
+```
+1. WHERE子句（在SELECT语句中最先执行）
+```sql
+--查询员工表 EMPLOYEES 中薪水大于5000的员工
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY > 5000;
+```
+2. GROUP BY子句（常与聚合函数（如COUNT、SUM、AVG、MAX、MIN）一起使用）
+```sql
+--查询每个部门的员工总数,按照DEPARTMENT_ID分组
+SELECT DEPARTMENT_ID, COUNT(*) AS EMPLOYEE_COUNT
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+```
+3. HAVING子句（用于聚合后的条件过滤，不能在WHERE中直接使用聚合函数）
+```sql
+--查询员工人数大于5的部门，并显示部门ID和员工数量
+SELECT DEPARTMENT_ID, COUNT(*) AS EMPLOYEE_COUNT
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+HAVING COUNT(*) > 5;
+```
+4. ORDER BY子句（用于排序，升序ASC，降序DESC，可以按多个字段排序）
+```sql
+-- 查询员工表中薪水大于5000的员工信息，按薪水降序排列
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY > 5000
+ORDER BY SALARY DESC;
+```
+5. 聚合函数  
+```sql
+--COUNT用于计算行数，可以统计非空值的个数，或者直接计算总行数。
+SELECT COUNT(*) AS TOTAL_EMPLOYEES
+FROM EMPLOYEES;
+```
+```sql
+--AVG用于计算数值列的平均值。
+SELECT AVG(SALARY) AS AVERAGE_SALARY
+FROM EMPLOYEES;
+```
+
+
 ### 数据更新
 - 插入数据
 ```sql
@@ -121,7 +175,38 @@ insert into student
 values(200508,'yj',19,'男','人工智能','江苏省');
 ```
 
-- 删改数据
+- 修改数据
 ```sql
+--用子句修改表中数据
+--假设有一个员工表EMPLOYEES，包含字段EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+--将员工编号为101的员工工资增加10%
+UPDATE EMPLOYEES
+SET SALARY = SALARY * 1.1
+WHERE EMPLOYEE_ID = 101;
+```
+```sql
+--用子查询修改表中数据（适用于复杂场景）
+--假设有另一个表DEPARTMENTS，包含字段DEPARTMENT_ID, DEPARTMENT_NAME
+--目标：将所有在销售部门工作的员工工资增加15%
+UPDATE EMPLOYEES
+SET SALARY = SALARY * 1.15
+WHERE DEPARTMENT_ID = (
+    SELECT DEPARTMENT_ID
+    FROM DEPARTMENTS
+    WHERE DEPARTMENT_NAME = 'Sales');
+```
 
+- 删除数据（子句和子查询两种）
+```sql
+--从员工表中删除所有薪水小于3000的员工记录
+DELETE FROM EMPLOYEES
+WHERE SALARY < 3000;
+```
+```sql
+--假设要删除所有在某一特定部门内工作，并且薪水低于该部门平均薪水的员工
+DELETE FROM EMPLOYEES
+WHERE SALARY < (
+    SELECT AVG(SALARY)
+    FROM EMPLOYEES
+    WHERE DEPARTMENT_ID = EMPLOYEES.DEPARTMENT_ID);
 ```

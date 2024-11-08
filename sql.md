@@ -1,4 +1,9 @@
-### 表的建立与删改
+[一、表的建立与删改](#1)  
+[二、完整性约束的三个子句形式](#2)  
+[三、数据查询](#3)  
+[四、数据更新](#4)
+
+### 一、表的建立与删改<a id="1"></a>
 - 建立student表、定义完整性约束条件，设置sno为主键
 ```sql
 create table student(
@@ -46,7 +51,7 @@ alter table student drop column subject;
 ```
 
 
-### 完整性约束的三个子句形式
+### 二、完整性约束的三个子句形式<a id="2"></a>
 1. 主键子句：primary key (<列名>)
 ```sql
 create table worker(
@@ -113,7 +118,7 @@ password    VARCHAR(10) check(regexp_like(password,'^00[0-9]{2}[_][a-z,A-Z]{3}$'
 ```
 
 
-### 数据查询
+### 三、数据查询<a id="3"></a>
 - 单表查询 
 ```sql
 --查询员工人数大于5的部门中，薪水平均值大于6000的部门，按平均薪水降序排列
@@ -155,19 +160,63 @@ WHERE SALARY > 5000
 ORDER BY SALARY DESC;
 ```
 5. 聚合函数  
+   <font color=red>WHERE子句中不能用聚集函数作为条件表达式。聚集函数只能用于SELECT子句和GROUP BY中的HAVING子句。</font>
 ```sql
 --COUNT用于计算行数，可以统计非空值的个数，或者直接计算总行数。
 SELECT COUNT(*) AS TOTAL_EMPLOYEES
 FROM EMPLOYEES;
+--统计表EMPLOYEES中的总员工数
 ```
 ```sql
 --AVG用于计算数值列的平均值。
-SELECT AVG(SALARY) AS AVERAGE_SALARY
-FROM EMPLOYEES;
+SELECT DEPARTMENT_ID, AVG(SALARY) AS DEPARTMENT_AVG_SALARY
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+--按DEPARTMENT_ID分组，计算每个部门的平均薪水
+```
+```sql
+--SUM用于计算数值列的总和
+SELECT DEPARTMENT_ID, SUM(SALARY) AS DEPARTMENT_TOTAL_SALARY
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+--按DEPARTMENT_ID分组，计算每个部门的总薪水。
+```
+```sql
+--MAX用于计算列的最大值
+SELECT DEPARTMENT_ID, MAX(SALARY) AS DEPARTMENT_MAX_SALARY
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+--分组、然后查询每个部门的最高薪水
+```
+```sql
+--MIN用于计算列的最大值
+SELECT DEPARTMENT_ID, MIN(SALARY) AS DEPARTMENT_MIN_SALARY
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+--分组、然后查询每个部门的最低薪水
+```
+
+- 多表查询（通过嵌套子查询的方式实现）
+```sql
+--查询所有在销售部门工作的员工信息
+SELECT EMPLOYEE_ID, NAME, SALARY
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = (
+    SELECT DEPARTMENT_ID
+    FROM DEPARTMENTS
+    WHERE DEPARTMENT_NAME = 'Sales');
+```
+
+- 连接查询（将两个或多个表按某种条件连接在一起查询）
+```sql
+--查询员工表和部门表中的员工信息以及对应的部门名称
+SELECT E.EMPLOYEE_ID, E.FIRST_NAME, E.LAST_NAME, E.SALARY, D.DEPARTMENT_NAME
+FROM EMPLOYEES E
+JOIN DEPARTMENTS D ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
 ```
 
 
-### 数据更新
+### 四、数据更新<a id="4"></a>
 - 插入数据
 ```sql
 --将学生的信息加入到学生表中

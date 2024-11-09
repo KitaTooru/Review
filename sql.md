@@ -1,7 +1,11 @@
+## 目录
 [一、表的建立与删改](#1)  
 [二、完整性约束的三个子句形式](#2)  
 [三、数据查询](#3)  
-[四、数据更新](#4)
+[四、数据更新](#4)  
+[五、视图创建与使用](#5)
+
+## 笔记
 
 ### 一、表的建立与删改<a id="1"></a>
 - 建立student表、定义完整性约束条件，设置sno为主键
@@ -196,24 +200,42 @@ GROUP BY DEPARTMENT_ID;
 --分组、然后查询每个部门的最低薪水
 ```
 
-- 多表查询（通过嵌套子查询的方式实现）
+- 多表查询
+1. 嵌套查询（子查询嵌套在父查询的WHERE条件中，不能使用ORDER子句，因为ORDER BY子句只能对最终查询结果排序）
 ```sql
---查询所有在销售部门工作的员工信息
-SELECT EMPLOYEE_ID, NAME, SALARY
-FROM EMPLOYEES
-WHERE DEPARTMENT_ID = (
-    SELECT DEPARTMENT_ID
-    FROM DEPARTMENTS
-    WHERE DEPARTMENT_NAME = 'Sales');
+--找出年龄超过平均年龄的学生姓名
+SELECT name
+FROM student
+WHERE age>
+(SELECT AVG(age)
+ FROM student);
+```
+2. 条件连接查询
+```sql
+--用嵌套查询查询选修了数据库课程的学生学号、成绩
+SELECT sno,grade
+FROM s_c
+WHERE cno IN
+(SELECT cno
+ FROM course
+ WHERE cname="数据库");
+ --以上语句用条件连接查询表示为：
+ SELECT sno,grade
+ FROM s_c,course
+ WHERE s_c.cno=course.cno AND cname="数据库";
 ```
 
-- 连接查询（将两个或多个表按某种条件连接在一起查询）
+- 连接查询  
+  用JOIN...ON...，其中JOIN指定要连接的表，而ON子句指定连接的条件（即连接键）
 ```sql
 --查询员工表和部门表中的员工信息以及对应的部门名称
+--默认情况下，JOIN...ON...就是内连接（INNER JOIN...ON...）
 SELECT E.EMPLOYEE_ID, E.FIRST_NAME, E.LAST_NAME, E.SALARY, D.DEPARTMENT_NAME
 FROM EMPLOYEES E
 JOIN DEPARTMENTS D ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
 ```
+
+- 递归查询（好像不常用）
 
 
 ### 四、数据更新<a id="4"></a>
@@ -259,3 +281,6 @@ WHERE SALARY < (
     FROM EMPLOYEES
     WHERE DEPARTMENT_ID = EMPLOYEES.DEPARTMENT_ID);
 ```
+
+
+### 五、视图创建与使用<a id="5"></a>

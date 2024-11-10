@@ -311,9 +311,71 @@ WHERE SALARY > 5000;
 1.用SQL语句创建表格，包括主外键；其中项目编号必须是12个字符长度，并且以’PJNO’开始。例如，‘PJNO00000001’。
 ```sql
 CREATE TABLE 项目管理(
-  项目编号  VARCHAR(12) PRIMARY KEY CHECK("项目编号" LIKE 'PJNO%',
+  项目编号  VARCHAR(12) PRIMARY KEY CHECK(项目编号 LIKE 'PJNO%'),
   项目名称  VARCHAR(50),
   地址      VARCHAR(50),
   开始时间  DATE,
-  项目状态  VARCHAR(5) CHECK(项目状态 IN ("未开始","施工中","已交付"))))；
+  项目状态  VARCHAR(5) CHECK(项目状态 IN ("未开始","施工中","已交付")))；
+CREATE TABLE 供应商管理(
+  供应商代码  VARCHAR(10),
+  名称       VARCHAR(100),
+  供应原材料代码  NUMERIC(20),
+  PRIMARY KRY (供应商代码));
+CREATE TABLE 原材料管理(
+  原材料代码  NUMERIC(20) PRIMARY KEY,
+  原材料名称  VARCHAR(40) NOT NULL,
+  原材料类别  VARCHAR(40),
+  单价       DECIMAL(5,2),
+  存放地     VARCHAR(100),
+  库存数     INT);
+CREATE TABLE 供需管理(
+  供需记录编号  NUMERIC(20),
+  项目编号      VARCHAR(13),
+  供应商代码    VARCHAR(10),
+  原材料代码    NUMERIC(20),
+  供应数量      INT NOT NULL,
+  FOREIGN KEY (项目编号) REFERENCES 项目管理(项目编号),
+  FOREIGN KEY (供应商代码) REFERENCES 供应商管理(供应商代码),
+  FOREIGN KEY (原材料代码) REFERENCES 原材料管理(原材料代码));
+```
+2.查询各种状态下的项目数量，项目状态为：未开始、施工中、已交付
+```sql
+
+```  
+3.创建一个视图，显示供应数量最多的原材料信息  
+```sql
+CREATE VIEW 最多供应数 AS
+SELECT 原材料管理.原材料代码,原材料管理.原材料名称,原材料管理.原材料类别,原材料管理.单价,原材料管理.存放地,SUM(供应数量) AS 总供给数
+FROM 供需管理
+JOIN 原材料管理 ON 供需管理.原材料代码=原材料管理.原材料代码
+GROUP BY 原材料管理.原材料代码,原材料管理.原材料名称,原材料管理.原材料类别,原材料管理.单价,原材料管理.存放地
+ORDER BY 总供给数 DESC;
+```
+4.查询项目名包含“南京”的项目所有供需信息  
+```sql
+SELECT 项目管理.项目编号,项目管理.项目名称,供需管理.供应商代码,供需管理.原材料代码,供需管理.供应数量
+FROM 项目管理
+JOIN 供需管理 ON 项目管理.项目编号=供需管理.项目编号
+WHERE 项目管理.项目名称 LIKE '%南京'；
+```
+5.查询至少需要3种不同原材料且每种原材料的供应数量不低于10的项目编号与名称  
+```sql
+SELECT 项目管理.项目编号,项目管理.项目名称
+FROM 项目管理
+JOIN 供需管理 ON 项目管理.项目编号=供需管理.项目编号
+WHERE 供需管理.供应数量>=10
+GROUP BY 项目管理.项目编号,项目管理.项目名称
+HAVING COUNT(DISTINCT 供需管理.原材料代码)>=3;
+```
+6.查询使用了“原材料A”但没有使用“原材料B”的项目编号和名称  
+```sql
+SELECT 项目管理.项目编号,项目管理.项目名称
+FROM 项目管理
+JOIN 供需管理 ON 项目管理.项目编号=供需管理.项目编号
+JOIN 原材料管理 ON 供需管理.原材料代码=原材料管理.原材料代码
+WHERE 原材料管理.原材料名称='原材料A'
+AND 项目管理.项目编号 NOT IN(
+  SELECT 项目编号
+  FROM 供需管理
+  WHERE 原材料名称='原材料B');
 ```

@@ -1,9 +1,13 @@
 ## 目录
-[一、表的建立与删改](#1)  
-[二、完整性约束的三个子句形式](#2)  
-[三、数据查询](#3)  
-[四、数据更新](#4)  
-[五、视图创建与使用](#5)
+#### [一、表的建立与删改](#1)  
+#### [二、完整性约束的三个子句形式](#2)  
+- #### [1. 主键子句](#2.1)
+- #### [2. 外键子句](#2.2)
+- #### [3. 检验子句](#2.3)
+#### [三、数据查询](#3)  
+#### [四、数据更新](#4)  
+#### [五、视图创建与使用](#5)
+#### [另：某些上机示例](#6)
 
 ## 笔记
 
@@ -56,7 +60,7 @@ alter table student drop column subject;
 
 
 ### 二、完整性约束的三个子句形式<a id="2"></a>
-1. 主键子句：primary key (<列名>)
+1. 主键子句：primary key (<列名>)<a id="2.1"></a>
 ```sql
 create table worker(
 worker_id   NUMERIC(10),
@@ -71,7 +75,7 @@ worker_name VARCHAR(6),
 skill_type  VARCHAR(8));
 ```
 
-2. 外键子句：foreign key (<列名>) references [<表名>][<约束选项>]
+2. 外键子句：foreign key (<列名>) references [<表名>][<约束选项>]<a id="2.2"></a>
 ```sql
 create table assignment(
 worker_id   NUMERIC(10),
@@ -80,7 +84,7 @@ FOREIGN KEY (worker_id) REFERENCES worker(woker_id));
 --一个表可以有多个外键
 ```
 
-3. 检验子句：check(<约束条件>)
+3. 检验子句：check(<约束条件>)<a id="2.3"></a>
 ```sql
 --性别只能为男或女
 create table student(
@@ -284,3 +288,32 @@ WHERE SALARY < (
 
 
 ### 五、视图创建与使用<a id="5"></a>
+ 创建视图的过程实际上就是在一个数据查询（即SELECT语句）前加上了CREATE VIEW关键字，视图本质上是一个查询的封装。
+ ```sql
+--假设有以下查询
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE SALARY > 5000;
+--将这个查询封装成视图，可以使用：
+CREATE VIEW high_salary_employees AS
+SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE SALARY > 5000;
+ ```
+
+
+ ### 一些上机示例<a id="6"></a>
+ 基础设施是经济社会发展的重要支撑，基础设施建设是国民经济基础性、先导性、战略性、引领性产业。现在需要我们设计一个小型的基建项目管理系统，通过把工程项目、供应商和原材料信息有机的结合起来（每个供应商只供应一种原材料），从而提高项目的实施效率。系统至少应该包含几个核心模块：项目管理模块、供应商管理模块、原材料管理模块、供需管理模块。  
+（1）	项目管理模块：用于记录项目的基本信息，包括项目编号、名称、地址、起始时间、项目状态等等；
+（2）	供应商管理模块：用于记录供应商的基本信息，包括供应商代码、名称、供应原材料代码等等；
+（3）	原材料管理模块：用于记录原材料的基本信息，包括原材料代码、名称、类别、单价、存放地、库存数等等；
+（4）	供需管理模块：用于记录项目供需的基本信息，包括项目编号、供应商代码、原材料代码、供应数量等等。  
+1.用SQL语句创建表格，包括主外键；其中项目编号必须是12个字符长度，并且以’PJNO’开始。例如，‘PJNO00000001’。
+```sql
+CREATE TABLE 项目管理(
+  项目编号  VARCHAR(12) PRIMARY KEY CHECK("项目编号" LIKE 'PJNO%',
+  项目名称  VARCHAR(50),
+  地址      VARCHAR(50),
+  开始时间  DATE,
+  项目状态  VARCHAR(5) CHECK(项目状态 IN ("未开始","施工中","已交付"))))；
+```

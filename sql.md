@@ -132,7 +132,7 @@ password    VARCHAR(10) check(regexp_like(password,'^00[0-9]{2}[_][a-z,A-Z]{3}$'
 
 
 ### 三、数据查询<a id="3"></a>[🔝](#top)
-- 单表查询 <a id="3.1"></a>
+1. 单表查询 <a id="3.1"></a>
 ```sql
 --查询员工人数大于5的部门中，薪水平均值大于6000的部门，按平均薪水降序排列
 SELECT DEPARTMENT_ID, COUNT(*) AS EMPLOYEE_COUNT, AVG(SALARY) AS AVG_SALARY
@@ -142,21 +142,21 @@ GROUP BY DEPARTMENT_ID  --按部门分组
 HAVING AVG(SALARY) > 6000  --过滤平均薪水大于6000的部门
 ORDER BY AVG_SALARY DESC;  --按平均薪水降序排列
 ```
-1. WHERE子句（在SELECT语句中最先执行）
+- WHERE子句（在SELECT语句中最先执行）
 ```sql
 --查询员工表 EMPLOYEES 中薪水大于5000的员工
 SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
 FROM EMPLOYEES
 WHERE SALARY > 5000;
 ```
-2. GROUP BY子句（常与聚合函数（如COUNT、SUM、AVG、MAX、MIN）一起使用）
+- GROUP BY子句（常与聚合函数（如COUNT、SUM、AVG、MAX、MIN）一起使用）
 ```sql
 --查询每个部门的员工总数,按照DEPARTMENT_ID分组
 SELECT DEPARTMENT_ID, COUNT(*) AS EMPLOYEE_COUNT
 FROM EMPLOYEES
 GROUP BY DEPARTMENT_ID;
 ```
-3. HAVING子句（用于聚合后的条件过滤，不能在WHERE中直接使用聚合函数）
+- HAVING子句（用于聚合后的条件过滤，不能在WHERE中直接使用聚合函数）
 ```sql
 --查询员工人数大于5的部门，并显示部门ID和员工数量
 SELECT DEPARTMENT_ID, COUNT(*) AS EMPLOYEE_COUNT
@@ -164,7 +164,7 @@ FROM EMPLOYEES
 GROUP BY DEPARTMENT_ID
 HAVING COUNT(*) > 5;
 ```
-4. ORDER BY子句（用于排序，升序ASC，降序DESC，可以按多个字段排序）
+- ORDER BY子句（用于排序，升序ASC，降序DESC，可以按多个字段排序）
 ```sql
 -- 查询员工表中薪水大于5000的员工信息，按薪水降序排列
 SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
@@ -172,7 +172,7 @@ FROM EMPLOYEES
 WHERE SALARY > 5000
 ORDER BY SALARY DESC;
 ```
-5. 聚合函数  
+- 聚合函数  
    <font color=red>WHERE子句中不能用聚集函数作为条件表达式。聚集函数只能用于SELECT子句和GROUP BY中的HAVING子句。</font>
 ```sql
 --COUNT用于计算行数，可以统计非空值的个数，或者直接计算总行数。
@@ -209,8 +209,8 @@ GROUP BY DEPARTMENT_ID;
 --分组、然后查询每个部门的最低薪水
 ```
 
-- 多表查询<a id="3.2"></a>
-1. 嵌套查询（子查询嵌套在父查询的WHERE条件中，不能使用ORDER子句，因为ORDER BY子句只能对最终查询结果排序）
+2. 多表查询<a id="3.2"></a>
+- 嵌套查询（子查询嵌套在父查询的WHERE条件中，不能使用ORDER子句，因为ORDER BY子句只能对最终查询结果排序）
 ```sql
 --找出年龄超过平均年龄的学生姓名
 SELECT name
@@ -219,7 +219,7 @@ WHERE age>
 (SELECT AVG(age)
  FROM student);
 ```
-2. 条件连接查询
+- 条件连接查询
 ```sql
 --用嵌套查询查询选修了数据库课程的学生学号、成绩
 SELECT sno,grade
@@ -234,7 +234,7 @@ WHERE cno IN
  WHERE s_c.cno=course.cno AND cname="数据库";
 ```
 
-- 连接查询<a id="3.3"></a>  
+3. 连接查询<a id="3.3"></a>  
   用JOIN...ON...，其中JOIN指定要连接的表，而ON子句指定连接的条件（即连接键）
 ```sql
 --查询员工表和部门表中的员工信息以及对应的部门名称
@@ -244,7 +244,7 @@ FROM EMPLOYEES E
 JOIN DEPARTMENTS D ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
 ```
 
-- 递归查询（好像不常用）<a id="3.4"></a>
+4. 递归查询（好像不常用）<a id="3.4"></a>
 
 
 ### 四、数据更新<a id="4"></a>[🔝](#top)

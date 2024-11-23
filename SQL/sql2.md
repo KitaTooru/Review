@@ -2,6 +2,8 @@
 - #### [1. 相关概念](#6.1)
 - #### [2. PL/SQL控制语句](#6.2)
 - #### [3. 游标的使用](#6.3)
+- #### [4. 存储过程与存储函数](#6.4)
+- #### [5. 数据库触发器](#6.5)
 
 #### 1. 相关概念<a id="6.1"></a>[🔝](#here)
 - 一个完整的PL/SQL语句块由3个部分组成。  
@@ -129,7 +131,14 @@ BEGIN
     END IF;
 END;
 ```
-- 循环控制语句
+- 循环控制语句  
+  1）简单循环
+```sql
+loop
+  循环语句;
+  exit when 结束条件;
+end loop;
+```
 ```sql
 --简单循环求1-100之间偶数的和。(在循环体中一定要包含exit语句，否则程序会进入死循环。)
 declare
@@ -146,6 +155,12 @@ begin
   dbms_output.put_line(sum);
 end;
 ```
+  2）while循环
+```sql
+while 循环条件 loop
+    循环语句;
+end loop;
+```
 ```sql
 --while循环求1-100之间偶数的和。
 declare 
@@ -157,9 +172,15 @@ begin
       sum:=sum+count;
     end if;
     count:=count+1;
-   end loop;
-   dbms_output.put_line(sum);
+  end loop;
+  dbms_output.put_line(sum);
 end;
+```
+  3）for循环
+```sql
+for 循环变量 in [reverse] 最小值..最大值 loop
+  sequence_of_statement;
+end loop;
 ```
 ```sql
 --for循环求1-100的偶数之和
@@ -171,14 +192,70 @@ begin
       sum:=sum+count;
     end if;
     count:=count+1;
-    end loop;
-   dbms_output.put_line(sum);
+  end loop;
+  dbms_output.put_line(sum);
 end;
 ```
 
 #### 3. 游标的使用<a id="6.3"></a>[🔝](#here)
+游标：是系统开设的一个数据缓冲区，存放SQL语句的执行结果。  
+作用：用户可通过游标获取记录，并赋给变量。  
+当对数据库的查询操作返回一组结果集时，存入游标，以后通过对游标的操作来获取结果集中的数据信息。  
+游标分显式游标和隐式游标。当查询语句返回多条记录时，必须显式地定义游标以处理每一行。其他的SQL语句(更新操作或查询操作只返回一条记录)都使用隐式游标。
+```sql
+--游标的定义：
+--CURSOR <游标名> IS <SQL语句>;
+--例：
+CURSOR c_emp IS SELECT * FROM emp WHERE dno=3; 
+ 
+--当需要操作结果集时，须完成：打开游标、使用FETCH语句将游标里的数据取出以及关闭游标操作。
+--游标声明：
+	CURSOR  游标名 IS 查询语句;
+--游标的打开：
+	OPEN 游标名;
+--游标的取值：
+	FETCH 游标名 INTO 变量列表;
+--游标的关闭：
+	CLOSE 游标名;
+```
+```sql
+--使用游标查询emp表中所有员工的姓名和工资，并将其依次打印出来
+DECLARE
+  CURSOR c_emp IS 	--声明游标
+  SELECT ename, sal FROM emp;	 --声明变量用来接受游标中的元素
+  v_ename emp.ename%TYPE;
+  v_sal emp.sal%TYPE;
+BEGIN
+  OPEN c_emp;	 --打开游标
+  LOOP	--遍历游标中的值
+    FETCH c_emp into v_ename, v_sal ; 	 --通过FETCH语句获取游标中的值并赋值                      
+    EXIT WHEN c_emp%NOTFOUND; 	--判断是否有值,有值打印,没有则退出循环
+    DBMS_OUTPUT.PUT_LINE('姓名:' || v_ename || ',薪水:' || v_sal)
+  END LOOP;
+  CLOSE c_emp;	 --关闭游标
+END;
+ 
+--使用游标查询并打印某部门的员工的姓名和薪资，部门编号为运行时手动输入。
+DECLARE
+  CURSOR c_emp(v_empno emp.empno%TYPE) IS
+    SELECT ename, sal FROM emp WHERE empno = v_empno;
+  v_ename emp.ename%TYPE;
+  v_sal emp.sal%TYPE;
+BEGIN
+  OPEN c_emp(10);	 --打开游标
+  LOOP	--遍历游标中的值
+  FETCH c_emp INTO v_ename, v_sal ; 	 --通过FETCH语句获取游标中的值并赋值            
+  EXIT  WHEN c_emp%NOTFOUND; 	--判断是否有值,有值打印,没有则退出循环
+  DBMS_OUTPUT.PUT_LINE('姓名:' || v_ename || ',薪水:' || v_sal)
+  END LOOP;
+  CLOSE c_emp;	 --关闭游标
+END;
+```
+```sql
+--带参游标的创建
+```
+
+#### 4. 存储过程与存储函数<a id="6.4"></a>[🔝](#here)
 
 
-#### 4. 存储过程与存储函数
-
-#### 5. 数据库触发器
+#### 5. 数据库触发器<a id="6.5"></a>[🔝](#here)

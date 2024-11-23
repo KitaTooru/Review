@@ -132,7 +132,7 @@ BEGIN
 END;
 ```
 - 循环控制语句  
-  1）简单循环
+1）简单循环
 ```sql
 loop
   循环语句;
@@ -256,6 +256,187 @@ END;
 ```
 
 #### 4. 存储过程与存储函数<a id="6.4"></a>[🔝](#here)
+存储过程五返回值，存储函数必须有一个返回值
+- 存储过程的创建与使用  
+```sql
+CREATE OR REPLACE PROCEDURE procedure_name (
+    parameter1 [IN | OUT | IN OUT] datatype,
+    parameter2 [IN | OUT | IN OUT] datatype
+) AS
+    -- 声明部分
+BEGIN
+    -- 执行部分
+EXCEPTION
+    -- 异常处理部分
+END procedure_name;
+```
+1）无参存储过程  
+```sql
+CREATE OR REPLACE PROCEDURE add_sal
+  AS BEGIN
+    UPDATE emp
+    SET sal = sal * 1.1
+    WHERE sal<3000;
+END;
+```
 
+2）有参存储过程
+```sql
+--根据输入的员工ID输出员工的工资
+CREATE OR REPLACE PROCEDURE get_employee_salary (p_emp_id IN NUMBER) 
+AS
+    v_salary NUMBER;
+BEGIN
+    SELECT salary INTO v_salary
+    FROM employees
+    WHERE employee_id = p_emp_id;
+
+    DBMS_OUTPUT.PUT_LINE('员工ID ' || p_emp_id || ' 的工资是：' || v_salary);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('未找到该员工的记录。');
+END;
+```
+```sql
+--根据员工ID获取员工姓名，并返回工资。
+CREATE OR REPLACE PROCEDURE get_employee_details (
+    p_emp_id IN NUMBER,
+    p_emp_name OUT VARCHAR2,
+    p_salary OUT NUMBER
+) AS
+BEGIN
+    SELECT first_name, salary INTO p_emp_name, p_salary
+    FROM employees
+    WHERE employee_id = p_emp_id;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_emp_name := '未找到';
+        p_salary := 0;
+END;
+--调用：
+DECLARE
+    v_name VARCHAR2(50);
+    v_salary NUMBER;
+BEGIN
+    get_employee_details(101, v_name, v_salary);
+    DBMS_OUTPUT.PUT_LINE('姓名: ' || v_name || ', 工资: ' || v_salary);
+END;
+```
+```sql
+--根据员工ID更新工资，同时返回更新前的工资。
+CREATE OR REPLACE PROCEDURE update_salary (
+    p_emp_id IN NUMBER,
+    p_new_salary IN NUMBER,
+    p_old_salary OUT NUMBER
+) AS
+BEGIN
+    -- 查询更新前的工资
+    SELECT salary INTO p_old_salary
+    FROM employees
+    WHERE employee_id = p_emp_id;
+
+    -- 更新工资
+    UPDATE employees
+    SET salary = p_new_salary
+    WHERE employee_id = p_emp_id;
+
+    DBMS_OUTPUT.PUT_LINE('员工ID ' || p_emp_id || ' 的工资已更新为：' || p_new_salary);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('未找到该员工的记录，无法更新工资。');
+END;
+--调用
+DECLARE
+    v_old_salary NUMBER;
+BEGIN
+    update_salary(101, 8000, v_old_salary);
+    DBMS_OUTPUT.PUT_LINE('更新前的工资为：' || v_old_salary);
+END;
+```
+
+- 存储函数的创建与使用
+```sql
+CREATE OR REPLACE FUNCTION function_name (
+    parameter1 datatype,
+    parameter2 datatype
+) RETURN return_datatype IS
+    -- 声明部分
+BEGIN
+    -- 执行部分
+    RETURN value; -- 必须返回一个值
+EXCEPTION
+    -- 异常处理部分（可选）
+END function_name;
+```
+1）无参数存储函数
+```sql
+CREATE OR REPLACE FUNCTION say_hello
+RETURN VARCHAR2 IS
+BEGIN
+    RETURN '欢迎使用Oracle存储函数！';
+END;
+--调用：
+BEGIN
+    DBMS_OUTPUT.PUT_LINE(say_hello);
+END;
+```
+2）带参数存储函数
+```sql
+/*创建一个存储函数，用于获取员工的详细信息：
+输入员工ID（可选），默认查询公司中薪资最高的员工。
+返回包含员工姓名、职位、工资和员工等级的字符串。
+根据工资确定员工等级：
+工资 > 20000：高级
+工资在 10000 和 20000 之间：中级
+工资 < 10000：初级
+如果输入的员工ID不存在，返回提示“未找到员工”。*/
+CREATE OR REPLACE FUNCTION get_employee_info (p_emp_id NUMBER DEFAULT NULL) 
+RETURN VARCHAR2 IS
+    -- 声明部分
+    v_emp_name VARCHAR2(100);
+    v_job_title VARCHAR2(100);
+    v_salary NUMBER;
+    v_level VARCHAR2(20);
+    v_result VARCHAR2(400);
+BEGIN
+    -- 执行部分
+    IF p_emp_id IS NULL THEN
+        -- 如果未传递员工ID，查询公司工资最高的员工
+        SELECT first_name || ' ' || last_name, job_title, salary
+        INTO v_emp_name, v_job_title, v_salary
+        FROM employees
+        WHERE salary = (SELECT MAX(salary) FROM employees);
+    ELSE
+        -- 查询指定员工ID的信息
+        SELECT first_name || ' ' || last_name, job_title, salary
+        INTO v_emp_name, v_job_title, v_salary
+        FROM employees
+        WHERE employee_id = p_emp_id;
+    END IF;
+
+    -- 根据工资确定员工等级
+    IF v_salary > 20000 THEN
+        v_level := '高级';
+    ELSIF v_salary BETWEEN 10000 AND 20000 THEN
+        v_level := '中级';
+    ELSE
+        v_level := '初级';
+    END IF;
+
+    -- 生成结果字符串
+    v_result := '姓名: ' || v_emp_name || ', 职位: ' || v_job_title ||
+                ', 工资: ' || v_salary || ', 等级: ' || v_level;
+
+    RETURN v_result;
+
+EXCEPTION
+    -- 异常处理：如果未找到记录
+    WHEN NO_DATA_FOUND THEN
+        RETURN '未找到员工信息，请检查员工ID。';
+    -- 其他异常
+    WHEN OTHERS THEN
+        RETURN '发生未知错误，请联系管理员。';
+END get_employee_info;
+```
 
 #### 5. 数据库触发器<a id="6.5"></a>[🔝](#here)

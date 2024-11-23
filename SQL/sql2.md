@@ -436,7 +436,7 @@ EXCEPTION
     -- 其他异常
     WHEN OTHERS THEN
         RETURN '发生未知错误，请联系管理员。';
-END get_employee_info;
+END;
 ```
 
 #### 5. 数据库触发器<a id="6.5"></a>[🔝](#here)

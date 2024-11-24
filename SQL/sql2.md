@@ -256,7 +256,7 @@ END;
 ```
 
 #### 4. 存储过程与存储函数<a id="6.4"></a>[🔝](#here)
-存储过程五返回值，存储函数必须有一个返回值
+存储过程无返回值，存储函数必须有一个返回值
 - 存储过程的创建与使用  
 ```sql
 CREATE OR REPLACE PROCEDURE procedure_name (
@@ -454,4 +454,28 @@ BEGIN
 EXCEPTION
     -- 可选的异常处理
 END;
+```
+
+```sql
+CREATE OR REPLACE TRIGGER trg_after_insert_update_employee
+AFTER INSERT OR UPDATE ON employees
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO employee_actions (action_id, employee_id, action_type, action_date)
+        VALUES (employee_actions_seq.NEXTVAL, :NEW.employee_id, 'INSERT', SYSDATE);
+    ELSIF UPDATING THEN
+        INSERT INTO employee_actions (action_id, employee_id, action_type, action_date)
+        VALUES (employee_actions_seq.NEXTVAL, :NEW.employee_id, 'UPDATE', SYSDATE);
+    END IF;
+END;
+--调用：
+INSERT INTO employees (employee_id, first_name, last_name, salary)
+VALUES (102, 'Alice', 'Smith', 6000);
+
+UPDATE employees
+SET salary = 6500
+WHERE employee_id = 102;
+
+SELECT * FROM employee_actions;
 ```

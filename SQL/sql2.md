@@ -198,7 +198,7 @@ end;
 ```
 
 #### 3. 游标的使用<a id="6.3"></a>[🔝](#here)
-游标：是系统开设的一个数据缓冲区，存放SQL语句的执行结果。  
+游标：是系统开设的一个**数据缓冲区**，存放SQL语句的执行结果。  
 作用：用户可通过游标获取记录，并赋给变量。  
 当对数据库的查询操作返回一组结果集时，存入游标，以后通过对游标的操作来获取结果集中的数据信息。  
 游标分显式游标和隐式游标。当查询语句返回多条记录时，必须显式地定义游标以处理每一行。其他的SQL语句(更新操作或查询操作只返回一条记录)都使用隐式游标。
@@ -440,3 +440,18 @@ END;
 ```
 
 #### 5. 数据库触发器<a id="6.5"></a>[🔝](#here)
+```sql
+CREATE [OR REPLACE] TRIGGER trigger_name
+{BEFORE | AFTER | INSTEAD OF}
+{INSERT [OR] | UPDATE [OR] | DELETE}
+ON table_name
+[FOR EACH ROW]
+[WHEN (condition)]
+DECLARE
+    -- 可选的变量或游标声明
+BEGIN
+    -- 触发器的逻辑代码
+EXCEPTION
+    -- 可选的异常处理
+END;
+```

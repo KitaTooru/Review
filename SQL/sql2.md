@@ -455,7 +455,6 @@ EXCEPTION
     -- 可选的异常处理
 END;
 ```
-
 ```sql
 CREATE OR REPLACE TRIGGER trg_after_insert_update_employee
 AFTER INSERT OR UPDATE ON employees

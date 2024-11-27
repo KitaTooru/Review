@@ -252,7 +252,31 @@ BEGIN
 END;
 ```
 ```sql
---带参游标的创建
+--带参游标在声明的时候定义形式参数，打开游标的时候指定实际参数
+DECLARE
+  -- 定义带参数的游标，查询薪水大于给定值的员工
+  CURSOR emp_cursor (min_salary IN NUMBER) IS
+    SELECT employee_id, first_name, last_name, salary
+    FROM employees
+    WHERE salary > min_salary;
+  -- 定义变量来保存游标返回的结果
+  v_employee_id employees.employee_id%TYPE;
+  v_first_name employees.first_name%TYPE;
+  v_last_name employees.last_name%TYPE;
+  v_salary employees.salary%TYPE;
+BEGIN
+  -- 打开游标并传入参数
+  OPEN emp_cursor(5000);  -- 查询薪水大于5000的员工
+  LOOP
+    FETCH emp_cursor INTO v_employee_id, v_first_name, v_last_name, v_salary;
+    EXIT WHEN emp_cursor%NOTFOUND;
+    -- 输出员工信息
+    DBMS_OUTPUT.PUT_LINE('Employee ID: ' || v_employee_id ||
+                         ', Name: ' || v_first_name || ' ' || v_last_name ||
+                         ', Salary: ' || v_salary);
+  END LOOP;
+  CLOSE emp_cursor;
+END;
 ```
 
 #### 4. 存储过程与存储函数<a id="6.4"></a>[🔝](#here)

@@ -131,7 +131,12 @@ password    VARCHAR(10) check(regexp_like(password,'^00[0-9]{2}[_][a-z,A-Z]{3}$'
 
 
 ### 三、数据查询<a id="3"></a>[🔝](#top)
-1. 单表查询 <a id="3.1"></a>
+1. 单表查询 <a id="3.1"></a>  
+SELECT语句的含义：  
+1）根据WHERE子句的条件表达式，从FROM子句指定的基本表或视图中找出满足条件的元组；  
+2）再按SELECT子句中的目标列表表达式选出元组中的列值形成结果表；  
+3）如果有GROUP子句，将行选择的结果按<列名1>的值进行分组，列值相等的元组为一个组，每个组产生结果表中的一条记录，如果GROUP子句带HAVING短语，则只有满足指定条件的组才会输出；  
+4）如果有ORDER子句，最后的结果按照<列名2>值的升序或降序排序。
 ```sql
 --查询员工人数大于5的部门中，薪水平均值大于6000的部门，按平均薪水降序排列
 SELECT DEPARTMENT_ID, COUNT(*) AS EMPLOYEE_COUNT, AVG(SALARY) AS AVG_SALARY
@@ -232,6 +237,11 @@ WHERE cno IN
  FROM s_c,course
  WHERE s_c.cno=course.cno AND cname="数据库";
 ```
+- 相关子查询
+```sql
+
+```
+
 
 3. 连接查询<a id="3.3"></a>  
   用JOIN...ON...，其中JOIN指定要连接的表，而ON子句指定连接的条件（即连接键）

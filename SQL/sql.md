@@ -237,11 +237,31 @@ WHERE cno IN
  FROM s_c,course
  WHERE s_c.cno=course.cno AND cname="数据库";
 ```
-- 相关子查询
+- 相关子查询  
+EXISTS或NOT EXISTS的执行顺序是先执行外查询再执行内查询。
 ```sql
-
+select * from A where not exists(select * from B where A.id = B.id);
+select * from A where exists(select * from B where A.id = B.id);
+--1、首先执行外查询select * from A，然后从外查询的数据取出一条数据传给内查询。
+--2、内查询执行select * from B，外查询传入的数据和内查询获得的数据根据where后面的条件做匹对，如果存在数据满足A.id=B.id则返回true，如果一条都不满足则返回false。
+--3、内查询返回true，则外查询的这行数据保留，反之内查询返回false，则外查询的这行数据不显示。外查询的所有数据逐行查询匹对。
 ```
+```sql
+--查询没有选修001号课程的学生学号及姓名
+SELECT sno,sname
+  FROM student
+  WHERE NOT EXISTS
+    (SELECT *
+    FROM s_c
+    WHERE s_c.sno=student.sno AND cno='001');
 
+SELECT sno,sname
+  FROM student
+  WHERE sno <> ALL
+    (SELECT sno
+    FROM s_c
+    WHERE cno='001');
+```
 
 3. 连接查询<a id="3.3"></a>  
   用JOIN...ON...，其中JOIN指定要连接的表，而ON子句指定连接的条件（即连接键）
@@ -313,4 +333,5 @@ CREATE VIEW high_salary_employees AS
 SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY, DEPARTMENT_ID
 FROM EMPLOYEES
 WHERE SALARY > 5000;
- ```
+--子查询可以是任意复杂的SELECT语句
+```

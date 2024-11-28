@@ -176,6 +176,13 @@ FROM EMPLOYEES
 WHERE SALARY > 5000
 ORDER BY SALARY DESC;
 ```
+- DISTINCT的用法
+```sql
+-- 去除单列中的重复值,返回唯一的记录行。
+-- DISTINCT可以统计多列，必须放在开头
+SELECT DISTINCT column1, column2, ... 
+FROM table_name;
+```
 - 聚合函数  
    <font color=red>WHERE子句中不能用聚集函数作为条件表达式。聚集函数只能用于SELECT子句和GROUP BY中的HAVING子句。</font>
 ```sql
@@ -213,7 +220,7 @@ GROUP BY DEPARTMENT_ID;
 --分组、然后查询每个部门的最低薪水
 ```
 
-2. 多表查询<a id="3.2"></a>
+1. 多表查询<a id="3.2"></a>
 - 嵌套查询（子查询嵌套在父查询的WHERE条件中，不能使用ORDER子句，因为ORDER BY子句只能对最终查询结果排序）
 ```sql
 --找出年龄超过平均年龄的学生姓名

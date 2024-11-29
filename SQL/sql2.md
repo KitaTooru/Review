@@ -479,6 +479,23 @@ EXCEPTION
     -- 可选的异常处理
 END;
 ```
+相关说明：  
+1）ON<表名>：表必须与要创建的触发器处于同一个模式  
+2）BEFORE&AFTER：何时执行触发器动作（更新之前/之后）  
+3）FOR EACH ROW：行级or语句级触发器，若指定则对触发器影响到的每一行引发一次触发器，若没有则对每个应用语句只引发一次触发器  
+4）WHEN<条件>：当触发器被激活，如果触发条件是TRUE，则触发动作发生  
+5）INSTEAD OF选项  
+6）触发动作体  
+7）**在行触发器中访问列值：“:OLD.<列名>”表示列的旧值，“:NEW.<列名>”表示列的新值**
+```sql
+CREATE OR REPLACE TRIGGER 删除供需记录
+AFTER DELETE ON 项目管理
+FOR EACH ROW
+BEGIN
+    DELETE FROM 供需管理 WHERE 项目编号 = :OLD.项目编号;
+END;
+/
+```
 ```sql
 CREATE OR REPLACE TRIGGER trg_after_insert_update_employee
 AFTER INSERT OR UPDATE ON employees
